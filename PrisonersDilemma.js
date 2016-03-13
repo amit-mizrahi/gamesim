@@ -31,7 +31,7 @@
 
     Player.prototype.playAgainst = function(neighbor) {
       var payoffMatrix;
-      payoffMatrix = [[3, 1], [4, 2]];
+      payoffMatrix = [[3, 2], [4, 1]];
       return payoffMatrix[this.strategy][neighbor.strategy];
     };
 
@@ -157,9 +157,9 @@
           _results1 = [];
           for (j = _j = 0, _ref1 = grid.n - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; j = 0 <= _ref1 ? ++_j : --_j) {
             if (grid.get(i, j).strategy === Strategy.cooperate) {
-              ctx.fillStyle = "#555555";
-            } else {
               ctx.fillStyle = "#EEEEEE";
+            } else {
+              ctx.fillStyle = "#555555";
             }
             _results1.push(ctx.fillRect(squareSize * i, squareSize * j, squareSize, squareSize));
           }
@@ -170,9 +170,13 @@
     };
     g = new GameGrid(100);
     animate = function() {
+      var fps;
       g.iterate();
       drawGrid(g, ctx);
-      return window.requestAnimationFrame(animate);
+      fps = 5;
+      return setTimeout(function() {
+        return window.requestAnimationFrame(animate);
+      }, 1000 / fps);
     };
     return window.requestAnimationFrame(animate);
   });

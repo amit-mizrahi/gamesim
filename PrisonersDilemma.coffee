@@ -27,7 +27,7 @@ class Player
 	#	D 	4	|	2
 	#
 	playAgainst: (neighbor) ->
-		payoffMatrix = [[3, 1], [4, 2]]
+		payoffMatrix = [[3, 1], [4, 1]]
 		return payoffMatrix[@strategy][neighbor.strategy]
 
 	# Returns a list of the 8 Moore neighbors surrounding the player
@@ -125,7 +125,10 @@ $( () ->
 	animate = () ->
 		g.iterate()
 		drawGrid(g, ctx)
-		window.requestAnimationFrame(animate)
+		fps = 5
+		setTimeout( () ->
+			window.requestAnimationFrame(animate)
+		, 1000 / fps)
 
 	window.requestAnimationFrame(animate)
 		
