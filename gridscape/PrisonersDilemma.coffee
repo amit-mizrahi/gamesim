@@ -42,6 +42,7 @@ class Player
 		return [@grid.get(@i-1, @j-1), @grid.get(@i-1, @j), @grid.get(@i-1, @j+1),
 				@grid.get(@i, @j-1), 	@grid.get(@i, @j+1),
 				@grid.get(@i+1, @j-1), @grid.get(@i+1, @j), @grid.get(@i+1, @j+1)]
+		# Von Neumann neighborhood: return [@grid.get(@i-1, @j), @grid.get(@i, @j-1), @grid.get(@i, @j+1), @grid.get(@i+1, @j+1)]
 
 class GameGrid
 	@n = 0
@@ -55,7 +56,7 @@ class GameGrid
 		@n = n
 		for i in [0..@n-1]
 			for j in [0..@n-1]
-				@players.push(@randomPlayer(i, j))
+				@players.push(@randomPlayer(i, j, 0.70))
 
 	# Gets the player in cell (i, j)
 	# The game grid is a torus, meaning that the rightmost cells are neighbors with the leftmost cells
@@ -63,11 +64,12 @@ class GameGrid
 	get: (i, j) ->
 		return @players[@n*(mod(i, @n)) + mod(j, @n)]
 
-	# Generates a player at cell (i, j) in the grid with a randomly chosen strategy.
-	randomPlayer: (i, j) ->
+	# Generates a player at cell (i, j) in the grid with a randomly chosen strategy 
+	# (given probability p that it will cooperate).
+	randomPlayer: (i, j, prob) ->
 		r = Math.random()
 		strategy = Strategy.cooperate
-		if r > 0.5
+		if r > prob
 			strategy = Strategy.defect
 		return new Player(@, i, j, strategy)
 
@@ -89,13 +91,18 @@ class GameGrid
 			if isLowest
 				# Get the neighbor with the highest score
 				highestNeighborScore = 0
-				highestScoringNeighbor = null
+				highestScoringNeighbor = []
 				for neighbor in player.getNeighbors()
 					if neighbor.mostRecentScore > highestNeighborScore
-						highestScoringNeighbor = neighbor
+						highestScoringNeighbors = [neighbor]
 						highestNeighborScore = neighbor.score
+					else if neighbor.mostRecentScore == highestNeighborScore
+						highestScoringNeighbors.push(neighbor)
 				# Set the strategy to the highest scoring neighbor's strategy
-				player.strategy = highestScoringNeighbor.strategy
+				r = Math.floor(Math.random()*highestScoringNeighbors.length)
+				console.log("length: " + highestScoringNeighbors.length)
+				console.log("r: " + r)
+				player.strategy = highestScoringNeighbors[r].strategy
 
 	# Runs k iterations of the simulation.
 	simulate: (k) ->
@@ -129,7 +136,7 @@ $( () ->
 					ctx.fillStyle = "#555555"
 				ctx.fillRect(squareSize*i, squareSize*j, squareSize, squareSize)
 
-	g = new GameGrid(100, Game.prisonersDilemma)
+	g = new GameGrid(100, Game.chicken)
 
 	animate = () ->
 		g.iterate()

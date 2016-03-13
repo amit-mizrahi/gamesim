@@ -65,7 +65,7 @@
       this.n = n;
       for (i = _i = 0, _ref = this.n - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
         for (j = _j = 0, _ref1 = this.n - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; j = 0 <= _ref1 ? ++_j : --_j) {
-          this.players.push(this.randomPlayer(i, j));
+          this.players.push(this.randomPlayer(i, j, 0.70));
         }
       }
     }
@@ -74,18 +74,18 @@
       return this.players[this.n * (mod(i, this.n)) + mod(j, this.n)];
     };
 
-    GameGrid.prototype.randomPlayer = function(i, j) {
+    GameGrid.prototype.randomPlayer = function(i, j, prob) {
       var r, strategy;
       r = Math.random();
       strategy = Strategy.cooperate;
-      if (r > 0.5) {
+      if (r > prob) {
         strategy = Strategy.defect;
       }
       return new Player(this, i, j, strategy);
     };
 
     GameGrid.prototype.iterate = function() {
-      var highestNeighborScore, highestScoringNeighbor, isLowest, neighbor, player, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref, _ref1, _ref2, _ref3, _ref4, _results;
+      var highestNeighborScore, highestScoringNeighbor, highestScoringNeighbors, isLowest, neighbor, player, r, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref, _ref1, _ref2, _ref3, _ref4, _results;
       _ref = this.players;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         player = _ref[_i];
@@ -110,16 +110,21 @@
         }
         if (isLowest) {
           highestNeighborScore = 0;
-          highestScoringNeighbor = null;
+          highestScoringNeighbor = [];
           _ref4 = player.getNeighbors();
           for (_m = 0, _len4 = _ref4.length; _m < _len4; _m++) {
             neighbor = _ref4[_m];
             if (neighbor.mostRecentScore > highestNeighborScore) {
-              highestScoringNeighbor = neighbor;
+              highestScoringNeighbors = [neighbor];
               highestNeighborScore = neighbor.score;
+            } else if (neighbor.mostRecentScore === highestNeighborScore) {
+              highestScoringNeighbors.push(neighbor);
             }
           }
-          _results.push(player.strategy = highestScoringNeighbor.strategy);
+          r = Math.floor(Math.random() * highestScoringNeighbors.length);
+          console.log("length: " + highestScoringNeighbors.length);
+          console.log("r: " + r);
+          _results.push(player.strategy = highestScoringNeighbors[r].strategy);
         } else {
           _results.push(void 0);
         }
@@ -179,7 +184,7 @@
       }
       return _results;
     };
-    g = new GameGrid(100, Game.prisonersDilemma);
+    g = new GameGrid(100, Game.chicken);
     animate = function() {
       var fps;
       g.iterate();
