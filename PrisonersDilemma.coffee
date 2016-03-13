@@ -4,44 +4,59 @@ Strategy =
 
 class Player
 	@strategy = Strategy.cooperate
-	@neighbors = [] # Moore neighborhood
+	@neighbors = [] # Moore neighborhood of the player in the grid
 	@mostRecentScore = -1
+	@grid = null
+	@i = -1
+	@j = -1
 
-	constructor: (strategy) ->
+	constructor: (grid, i, j, strategy) ->
+		@grid = grid
+		@i = i
+		@j = j
 		@strategy = strategy
 
 	# Plays a one-shot Prisoner's Dilemma game.
 	# Payoff matrix (C=cooperate, D=defect):
 	#
 	# 		C 		D
-	#
 	#	C 	3	|	1
-	#		----------
 	#	D 	4	|	2
 	#
 	playAgainst: (neighbor) ->
 		payoffMatrix = [[3, 1], [4, 2]]
 		return payoffMatrix[@strategy][neighbor.strategy]
 
+	# Returns a list of the 8 neighbors surrounding the player
 	getNeighbors: () ->
-		# todo
+		return [grid.get(i-1, j-1), grid.get(i-1, j), grid.get(i-1, j+1),
+				grid.get(i, j-1), 	grid.get(i, j+1),
+				grid.get(i+1, j-1), grid.get(i+1, j), grid.get(i+1, j+1)]
 
 class GameGrid
+	@n = 0
 	@players = []
 
 	# Creates an nxn grid of players.
 	constructor: (n) ->
+		@n = n
 		for i in 0..n
 			for j in 0..n
-				@players.push(randomPlayer())
+				@players.push(randomPlayer(i, j))
 
-	# Generates a player with a randomly chosen strategy.
-	randomPlayer: () ->
+	# Gets the player in cell (i, j)
+	# The game grid is a torus, meaning that the rightmost cells are neighbors with the leftmost cells
+	# and the top cells are neighbors with the bottom cells (the game grid "wraps around").
+	get: (i, j) ->
+		return @players[n*i + j % n]
+
+	# Generates a player at cell (i, j) in the grid with a randomly chosen strategy.
+	randomPlayer: (i, j) ->
 		r = Math.random()
 		strategy = Strategy.cooperate
 		if r > 0.5
 			strategy = Strategy.defect
-		return new Player(strategy)
+		return new Player(@, i, j, strategy)
 
 	# Runs a single iteration of the Prisoner's Dilemma simulation.
 	iterate: () ->
@@ -76,3 +91,4 @@ class GameGrid
 
 g = new GameGrid(50)
 g.simulate(1000)
+console.log(g)
