@@ -6,6 +6,13 @@ Strategy =
 	cooperate: 0
 	defect: 1
 
+Game =
+	prisonersDilemma: [[3, 1], [4, 2]]
+	stagHunt: [[4, 1], [3, 2]]
+	chicken: [[3, 2], [4, 1]]
+	deadlock: [[2, 1], [4, 3]]
+	stableChicken: [[1, 2], [4, 3]]
+
 class Player
 	@strategy = Strategy.cooperate
 	@mostRecentScore = -1
@@ -27,7 +34,7 @@ class Player
 	#	D 	4	|	2
 	#
 	playAgainst: (neighbor) ->
-		payoffMatrix = [[3, 1], [4, 1]]
+		payoffMatrix = @grid.game
 		return payoffMatrix[@strategy][neighbor.strategy]
 
 	# Returns a list of the 8 Moore neighbors surrounding the player
@@ -39,10 +46,12 @@ class Player
 class GameGrid
 	@n = 0
 	@players = []
+	@game = null
 
 	# Creates an nxn grid of players.
-	constructor: (n) ->
+	constructor: (n, game) ->
 		@players = []
+		@game = game
 		@n = n
 		for i in [0..@n-1]
 			for j in [0..@n-1]
@@ -120,7 +129,7 @@ $( () ->
 					ctx.fillStyle = "#555555"
 				ctx.fillRect(squareSize*i, squareSize*j, squareSize, squareSize)
 
-	g = new GameGrid(100)
+	g = new GameGrid(100, Game.prisonersDilemma)
 
 	animate = () ->
 		g.iterate()
